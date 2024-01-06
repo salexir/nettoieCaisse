@@ -4,12 +4,15 @@ check_fileTypes <- function(file){
 
 }
 
-
-
 check_fileNames <- function(file){
 
-  # small-ish data file of allowable file names
+  # small-ish vector of allowable file names
+  allowed_fileName_prefixes <- paste0(
+    c("personal", "shared", "personal-cc", "shared-cc"), collapse = "|")
 
+(grep(allowed_fileName_prefixes, file))
+
+  stopifnot("File names not in allowable list" = length(grep(allowed_fileName_prefixes, file)) == 1)
 
 }
 
@@ -17,6 +20,6 @@ check_fileNames <- function(file){
 
 validate_inputFiles <- function(){
 
-
+  check_fileTypes()
 
 }
