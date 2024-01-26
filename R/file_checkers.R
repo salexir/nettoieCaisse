@@ -62,13 +62,14 @@ validate_file <- function(file){
   check_fileNames(file)
   process_type <- determine_process_type(file)
 
-  col.names <- c("Date", "Merchant", "DR", "CR", "RunningTot")
+  col.names <- c("Date", "Merchant", "DR", "CR", "RunningTot", "Note")
   fileData <- utils::read.csv(file = file, header = FALSE, col.names = col.names)
 
 
   # Column cleanups
   fileData$Date <- as.Date(fileData$Date, format = '%m/%d/%Y')
   fileData$Merchant <- trimws(fileData$Merchant)
+  fileData$Note <- gsub("^$", NA, fileData$Note)
 
 
   # Column creation
