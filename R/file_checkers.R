@@ -89,7 +89,7 @@ validate_file <- function(file){
                                          fileData$Split_Amount)
 
   fileData$DeletionFlag <- ifelse(grepl(pattern = 'preauth', tolower(fileData$Merchant)),
-                                        TRUE, FALSE)
+                                        1, 0)
 
   fileData
 }
