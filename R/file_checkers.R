@@ -67,7 +67,7 @@ validate_file <- function(file){
 
 
   # Column cleanups
-  fileData$Date <- as.Date(fileData$Date, format = '%m/%d/%Y')
+  fileData$Date <- as.Date(fileData$Date, tryFormats = c('%m/%d/%Y', '%Y-%m-%d'))
   fileData$Merchant <- trimws(fileData$Merchant)
   fileData$Note <- gsub("^$", NA, fileData$Note)
 
