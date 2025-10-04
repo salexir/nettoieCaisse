@@ -10,7 +10,7 @@ check_fileNames <- function(file){
   allowed_fileName_prefixes <- paste0(
     c("personal", "shared", "personal-cc", "shared-cc"), collapse = "|")
 
-(grep(allowed_fileName_prefixes, file))
+  (grep(allowed_fileName_prefixes, file))
 
   stopifnot("File names not in allowable list" = length(grep(allowed_fileName_prefixes, file)) == 1)
 
@@ -38,8 +38,8 @@ determine_process_type <- function(file){
 
     }else{
 
-    return('Joint-NonCreditCard')
-  }
+      return('Joint-NonCreditCard')
+    }
 
   }
 
@@ -49,13 +49,7 @@ determine_process_type <- function(file){
 
 #' Validate and prepare financial file
 #'
-#' @param file A filepath to the csv to be processed
-#'
-#' @return A validated and processed csv file.
-#' @export
-#'
-#' @examples
-validate_file <- function(file){
+validate_file_old <- function(file){
 
   # Do tests
   check_fileTypes(file)
@@ -82,14 +76,14 @@ validate_file <- function(file){
 
 
   fileData$Split_Amount <- ifelse(fileData$Account_Type == "Joint",
-                                   fileData$Amount/2, fileData$Amount)
+                                  fileData$Amount/2, fileData$Amount)
 
   fileData$Signed_Split_Amount <- ifelse(fileData$Transaction_Type == "Debit",
                                          -1*fileData$Split_Amount,
                                          fileData$Split_Amount)
 
   fileData$DeletionFlag <- ifelse(grepl(pattern = 'preauth', tolower(fileData$Merchant)),
-                                        1, 0)
+                                  1, 0)
 
   fileData
 }
