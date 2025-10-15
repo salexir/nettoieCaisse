@@ -25,7 +25,8 @@ validate_file <- function(filePath){
   fileData <- utils::read.csv(file = filePath,
                               header = bank_institution$file_read_settings$header_present,
                               col.names = bank_institution$file_read_settings$column_position,
-                              encoding = bank_institution$file_read_settings$file_encoding)
+                              encoding = bank_institution$file_read_settings$file_encoding,
+                              check.names = FALSE)
 
   fileData
 
