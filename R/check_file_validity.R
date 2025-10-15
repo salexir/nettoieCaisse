@@ -113,7 +113,10 @@ check_fileNames <- function(file){
   # First, generate artifacts
   allowed_fileNames <- generate_allowed_fileNames()
 
-  stopifnot("Named file doesn't meet aux-bourses-citoyens requirements " = length(grep(allowed_fileNames, file)) == 1)
+  # Check if the readfile name matches any of the allowed fileNames
+  flag <- any(sapply(allowed_fileNames, grepl, file))
+
+  stopifnot("Named file doesn't meet aux-bourses-citoyens requirements." = flag > 0)
 
 
 }
