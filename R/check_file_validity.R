@@ -74,5 +74,45 @@ generate_allowed_fileNames <- function(){
   sprintf("%s-%s-[[:digit:]]*.csv", grid$bank_institution, grid$allowed_fileName_prefixes)
 
 
+}
+
+# 2.0 Column Validating Functions ==============================================
+
+harmonise_dates <- function(column_name){
+
+  as.Date(column_name, tryFormats = c('%m/%d/%Y', '%Y-%m-%d'))
+
+}
+
+harmonise_debit_column <- function(column_name, is_signed){
+
+  if (is_signed){
+
+    vals <- ifelse(column_name <= 0, column_name, NA)
+
+    abs(vals)
+
+  }
+  else{
+
+    column_name
+
+  }
+
+}
+
+harmonise_credit_column <- function(column_name, is_signed){
+
+  if (is_signed){
+
+    vals <- ifelse(column_name > 0, column_name, NA)
+
+    abs(vals)
+
+  }
+  else{
+
+    column_name
+  }
 
 }
