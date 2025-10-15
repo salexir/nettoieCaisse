@@ -12,8 +12,10 @@ validate_file <- function(filePath){
   check_fileTypes(filePath)
   check_fileNames(filePath)
 
-  # Get bank name
-  bank_name <- read_bankName_from_file(filePath)
+  # Get bank name & other info coded from the filePath
+  bank_name <- gather_from_filePath(filePath)[[1]]
+  account_type_1 <- gather_from_filePath(filePath)[[2]]
+  account_type_2 <- gather_from_filePath(filePath)[[3]]
 
   # Load bank-model
   bank_institution <- get_bank_model_information(institution = bank_name)[[1]]
@@ -30,12 +32,13 @@ validate_file <- function(filePath){
 
 }
 
-read_bankName_from_file <- function(filePath){
+### 1.0 File Reading Functions =================================================
 
-  # From ".csv", assert closest fwd slash. Then take characters up to (nt incl.) the first
-  # hyphen.
+gather_from_filePath <- function(filePath){
 
-  regmatches(filePath, regexpr("([^/]+?)(?=-[^/]*\\.csv$)", filePath, perl = TRUE))
+    information <- regmatches(filePath, regexpr("([^/]+?)(?=\\.csv$)", filePath, perl = TRUE))
+
+    unlist(strsplit(information, "-"))
 
 }
 
