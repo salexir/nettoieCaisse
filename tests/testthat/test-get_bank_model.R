@@ -7,7 +7,9 @@ test_that("internal column representations from csvs imported are what are expec
                  "internal_dr",
                  "internal_cr",
                  "internal_currency",
-                 "internal_runningTot"))})
+                 "internal_runningTot",
+                 "file_read_settings",
+                 "column_settings"))})
 
 
 test_that("List of bank model variables returns something",
