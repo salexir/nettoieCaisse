@@ -28,7 +28,66 @@ validate_file <- function(filePath){
                               encoding = bank_institution$file_read_settings$file_encoding,
                               check.names = FALSE)
 
-  fileData
+  # Remapping cols
+  map <- unlist(bank_institution[!sapply(bank_institution, is.recursive)])
+
+  map <- merge(x =
+                 data.frame(
+                   val = map,
+                   colmap = names(map), row.names = NULL),
+               y = data.frame(val = colnames(fileData)))
+
+  # Recomposing file
+  recomposedFile <- data.frame(lapply(map$val, function(x) fileData[[x]]))
+  colnames(recomposedFile) <- map$colmap
+
+
+
+  # Applying logic to recomposed file
+
+  ## Debit/Credit are coerced to abs value, given that the directionality is
+  ## given by context.
+  recomposedFile$internal_dr <- harmonise_debit_column(recomposedFile$internal_dr,
+                                                       bank_institution$column_settings$dr_col_signed)
+  recomposedFile$internal_cr <- harmonise_credit_column(recomposedFile$internal_cr,
+                                                        bank_institution$column_settings$cr_col_signed)
+
+  recomposedFile$internal_date <- harmonise_dates(recomposedFile$internal_date)
+
+  # Add new cols
+  recomposedFile$internal_bank <- make_sentence_case(bank_name)
+  recomposedFile$account_type_1 <- sentence_case(account_type_1)
+  recomposedFile$account_type_2 <- ifelse(account_type_2 == "cc", "CreditCard", "NonCreditCard")
+
+  recomposedFile$internal <- ifelse(account_type_2 == "cc", "CreditCard", "NonCreditCard")
+
+
+
+  recomposedFile$internal_amount <- ifelse(is.na(recomposedFile$internal_cr), recomposedFile$internal_dr, recomposedFile$internal_cr)
+
+  recomposedFile$transaction_type <- ifelse(is.na(recomposedFile$internal_cr), "Debit", "Credit")
+
+
+  recomposedFile$split_amount <- ifelse(recomposedFile$account_type_1 == "Joint",
+                                        recomposedFile$internal_amount/2, recomposedFile$internal_amount)
+
+   recomposedFile$signed_split_amount <- ifelse(recomposedFile$transaction_type == "Debit",
+                                          -1*recomposedFile$split_amount,
+                                          recomposedFile$split_amount)
+
+
+   recomposedFile$deletion_flag <- ifelse(grepl(pattern = 'preauth', tolower(recomposedFile$internal_merchant)),
+                                   1, 0)
+
+  # Reorder columns to an arbitrary format
+  sort_order <- c("internal_date", "internal_bank", "internal_merchant", "internal_dr",
+                  "internal_cr", "internal_runningTot", "account_type_1", "account_type_2",
+                  "transaction_type", "internal_amount", "split_amount", "signed_split_amount",
+                  "deletion_flag")
+
+  recomposedFile <- recomposedFile[, sort_order]
+
+  recomposedFile
 
 
 }
