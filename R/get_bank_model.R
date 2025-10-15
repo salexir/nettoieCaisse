@@ -14,7 +14,13 @@ set_bank_model <- function(){
           header_present = FALSE,
           column_position = c("Date", "Merchant", "DR", "CR", "RunningTot", "Note"),
           file_encoding = "UTF-8"
-      ))
+      ),
+      column_settings =
+        list(
+          dr_col_signed = FALSE,
+          cr_col_signed = FALSE
+        )
+      )
 
   bank_revolut <-
     list(
@@ -32,6 +38,11 @@ set_bank_model <- function(){
                               "Description", "Amount", "Fee", "Currency",
                               "State", "Balance"),
           file_encoding = "UTF-8"
+        ),
+      column_settings =
+        list(
+          dr_col_signed = TRUE,
+          cr_col_signed = TRUE
         )
     )
 
