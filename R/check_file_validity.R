@@ -64,14 +64,15 @@ generate_allowed_fileNames <- function(){
   bank_institution <- unlist(lapply(set_bank_model(), `[[`, 1), use.names = FALSE)
 
   # small-ish vector of allowable file names
-  allowed_fileName_prefixes <- c("personal", "shared", "personal-cc",
+  allowed_fileName_prefixes <- c("personal-noncc", "shared-noncc", "personal-cc",
                                  "shared-cc")
 
   # possible name-combinations, flattened
   grid <- expand.grid(bank_institution = bank_institution,
                       allowed_fileName_prefixes = allowed_fileName_prefixes)
 
-  sprintf("%s-%s[[:digit:]]*.csv", grid$bank_institution, grid$allowed_fileName_prefixes)
+  sprintf("%s-%s-[[:digit:]]*.csv", grid$bank_institution, grid$allowed_fileName_prefixes)
+
 
 
 }
