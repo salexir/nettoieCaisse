@@ -116,3 +116,27 @@ harmonise_credit_column <- function(column_name, is_signed){
   }
 
 }
+
+# 3.0 Misc =====================================================================
+
+make_sentence_case <- function(string){
+
+  letter1 <- toupper(substr(string, 1, 1))
+
+  return(paste0(letter1, substr(string, 2, nchar(string))))
+
+}
+
+# TESTING UTILS -----
+
+read_test_files <- function(){
+
+  revolut_file <<- validate_file('data-raw/n2-support/Revolut-personal-cc-1.csv')
+
+  td_file <<- validate_file('data-raw/n2-support/TD-personal-cc-1.csv')
+
+  old_process <<- validate_file_old('data-raw/n2-support/TD-personal-cc-1.csv')
+
+  print('done')
+}
+
