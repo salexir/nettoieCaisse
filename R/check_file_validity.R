@@ -56,7 +56,7 @@ validate_file <- function(filePath){
 
   # Add new cols
   recomposedFile$internal_bank <- make_sentence_case(bank_name)
-  recomposedFile$account_type_1 <- sentence_case(account_type_1)
+  recomposedFile$account_type_1 <- make_sentence_case(account_type_1)
   recomposedFile$account_type_2 <- ifelse(account_type_2 == "cc", "CreditCard", "NonCreditCard")
 
   recomposedFile$internal <- ifelse(account_type_2 == "cc", "CreditCard", "NonCreditCard")
