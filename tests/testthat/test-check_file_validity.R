@@ -11,6 +11,7 @@ test_that("generated file names have the elements",{
                           paste0(c("personal", "shared", "personal-cc", "shared-cc"),
                                  collapse = "|")) })
 
+# 2.0 Column Validating Functions ==============================================
 
 test_that("Assert bankname read from file is not mangled",
           {
@@ -29,3 +30,23 @@ test_that("Assert bankname read from file is not mangled",
             expect_equal(read_bankName_from_file("Revolut-shared2.csv"), expected = "Revolut")
 
           })
+# 3.0 Misc =====================================================================
+### SUPERSEEDED
+#
+# test_that("Assert bankname read from file is not mangled",
+#           {
+#             expect_equal(read_bankName_from_file("data/sdi/3940/TD-shared.csv"), expected = "TD")
+#
+#           })
+#
+# test_that("Assert bankname read from file is not mangled",
+#           {
+#             expect_equal(read_bankName_from_file("data/sdi/3940/Revolut-shared2.csv"), expected = "Revolut")
+#
+#           })
+#
+# test_that("Assert bankname read from file is not mangled",
+#           {
+#             expect_equal(read_bankName_from_file("Revolut-shared2.csv"), expected = "Revolut")
+#
+#           })
