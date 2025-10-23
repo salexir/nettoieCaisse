@@ -19,6 +19,8 @@ test_that("file type passed have csv as file extension. This is only checking fo
           })
 
 
+## 1.1 Well formed names =======================================================
+
 test_that("well formed file names are passed silently",
           {expect_silent(check_fileNames(
             "TD-personal-noncc-1.csv"
@@ -29,12 +31,10 @@ test_that("well formed file names are passed silently",
             "Revolut-shared-cc-13.csv"
           ))})
 
-
 test_that("mal formed file names are raised",
           {expect_error(check_fileNames(
             "Revolut-cc-13.csv"
           ))})
-
 
 test_that("mal formed file names are raised",
           {expect_error(check_fileNames(
@@ -50,6 +50,18 @@ test_that("mal formed file names are raised",
           {expect_error(check_fileNames(
             "TD-personal-cc.csv"
           ))})
+
+## 1.2 filePath Info extraction ================================================
+
+test_that("ensure return element of 3, for bank, account type, cc/non-cc",
+          {expect_length(gather_from_filePath("TD-personal-cc.csv"), 3)})
+
+
+test_that("ensure return element is unnested",
+          {expect_false(is.recursive(gather_from_filePath("TD-personal-cc.csv")))})
+
+test_that("ensure return element is in a particular order: bank, a/c type, cc/non-cc",
+          {expect_identical(gather_from_filePath("TD-personal-cc.csv"), c("TD", "personal", "cc"))})
 
 # 2.0 Column Validating Functions ==============================================
 
