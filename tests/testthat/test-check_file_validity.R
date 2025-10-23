@@ -109,7 +109,85 @@ test_that("harmonise debit column always returns positive values, given signed c
             expect_setequal(harmonise_credit_column(c(30, 12, 0), is_signed = FALSE),
                             c(30, 12, 0))
           })
-# 3.0 Misc =====================================================================
+
+# 3.0 Test main validator via example files ====================================
+
+## 3.1 Institution: TD =========================================================
+
+### 3.1.1 File Structure =======================================================
+
+test_that("Colnames map after process",
+          {
+            expect_setequal(
+              colnames(validate_file(test_path('fixtures/mock-files/TD-personal-cc-1.csv'))),
+              c("internal_date", "internal_bank", "internal_merchant", "internal_dr",
+               "internal_cr", "internal_runningTot", "account_type_1", "account_type_2",
+               "transaction_type", "internal_amount", "split_amount", "signed_split_amount",
+               "deletion_flag")
+              )
+            })
+
+
+test_that("File well-formed: no unusual NAs present in core-cols",
+          {
+            testfile <- validate_file(test_path('fixtures/mock-files/TD-personal-cc-1.csv'))
+
+            analysis_of_na <- sapply(testfile, function(x) sum(is.na(x)))
+
+            core_cols <- c("internal_date",
+                           "internal_bank",
+                           "internal_merchant",
+                           "account_type_1",
+                           "account_type_2",
+                           "transaction_type",
+                           "internal_amount",
+                           "split_amount",
+                           "signed_split_amount",
+                           "deletion_flag")
+
+            expect_equal(sum(analysis_of_na[core_cols]), 0)
+
+          })
+
+## 3.2 Institution: Revolut ====================================================
+
+test_that("Colnames map after process",
+          {
+            expect_setequal(
+              colnames(validate_file(test_path('fixtures/mock-files/Revolut-personal-noncc-1.csv'))),
+              c("internal_date", "internal_bank", "internal_merchant", "internal_dr",
+                "internal_cr", "internal_runningTot", "account_type_1", "account_type_2",
+                "transaction_type", "internal_amount", "split_amount", "signed_split_amount",
+                "deletion_flag")
+            )
+          })
+
+
+
+test_that("File well-formed: no unusual NAs present in core-cols",
+          {
+            testfile <- validate_file(test_path('fixtures/mock-files/Revolut-personal-noncc-1.csv'))
+
+            analysis_of_na <- sapply(testfile, function(x) sum(is.na(x)))
+
+            core_cols <- c("internal_date",
+                           "internal_bank",
+                           "internal_merchant",
+                           "account_type_1",
+                           "account_type_2",
+                           "transaction_type",
+                           "internal_amount",
+                           "split_amount",
+                           "signed_split_amount",
+                           "deletion_flag")
+
+            expect_equal(sum(analysis_of_na[core_cols]), 0)
+
+          })
+
+
+
+# 4.0 Misc =====================================================================
 
 test_that("make_sentence_case returns... sentence case",
           {
