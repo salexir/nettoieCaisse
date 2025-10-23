@@ -1,3 +1,5 @@
+# 1.0 File Read Validation  ====================================================
+
 test_that("importing non-csv fin file throws error",
           {
             invalid_file = withr::local_tempfile(fileext = ".doc")
@@ -10,6 +12,44 @@ test_that("generated file names have the elements",{
           expect_match(generate_allowed_fileNames(),
                           paste0(c("personal", "shared", "personal-cc", "shared-cc"),
                                  collapse = "|")) })
+
+test_that("file type passed have csv as file extension. This is only checking for file name, not a formal extension test. ",
+          {
+            expect_silent(check_fileTypes("helloworld.csv"))
+          })
+
+
+test_that("well formed file names are passed silently",
+          {expect_silent(check_fileNames(
+            "TD-personal-noncc-1.csv"
+          ))})
+
+test_that("well formed file names are passed silently",
+          {expect_silent(check_fileNames(
+            "Revolut-shared-cc-13.csv"
+          ))})
+
+
+test_that("mal formed file names are raised",
+          {expect_error(check_fileNames(
+            "Revolut-cc-13.csv"
+          ))})
+
+
+test_that("mal formed file names are raised",
+          {expect_error(check_fileNames(
+            "Revolut-cc-personal-2.csv"
+          ))})
+
+test_that("mal formed file names are raised",
+          {expect_error(check_fileNames(
+            "TDA-personal-2"
+          ))})
+
+test_that("mal formed file names are raised",
+          {expect_error(check_fileNames(
+            "TD-personal-cc.csv"
+          ))})
 
 # 2.0 Column Validating Functions ==============================================
 
@@ -75,23 +115,3 @@ test_that("make_sentence_case returns obj of length 1",
             expect_length(make_sentence_case("whaddup"), 1)
           }
 )
-
-### SUPERSEEDED
-#
-# test_that("Assert bankname read from file is not mangled",
-#           {
-#             expect_equal(read_bankName_from_file("data/sdi/3940/TD-shared.csv"), expected = "TD")
-#
-#           })
-#
-# test_that("Assert bankname read from file is not mangled",
-#           {
-#             expect_equal(read_bankName_from_file("data/sdi/3940/Revolut-shared2.csv"), expected = "Revolut")
-#
-#           })
-#
-# test_that("Assert bankname read from file is not mangled",
-#           {
-#             expect_equal(read_bankName_from_file("Revolut-shared2.csv"), expected = "Revolut")
-#
-#           })
