@@ -23,3 +23,9 @@ test_that("get_bank_model_information returns list",
 
           }
           )
+
+
+test_that("returned list length of 1 if institution is specified in get_bank_model_information",{
+  expect_length(get_bank_model_information(institution = "TD"), 1)
+
+})
