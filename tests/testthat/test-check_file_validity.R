@@ -121,7 +121,7 @@ test_that("Colnames map after process",
             expect_setequal(
               colnames(validate_file(test_path('fixtures/mock-files/TD-personal-cc-1.csv'))),
               c("internal_date", "internal_bank", "internal_merchant", "internal_dr",
-               "internal_cr", "internal_runningTot", "account_type_1", "account_type_2",
+               "internal_cr", "internal_currency","internal_runningTot", "account_type_1", "account_type_2",
                "transaction_type", "internal_amount", "split_amount", "signed_split_amount",
                "deletion_flag")
               )
@@ -156,7 +156,7 @@ test_that("Colnames map after process",
             expect_setequal(
               colnames(validate_file(test_path('fixtures/mock-files/Revolut-personal-noncc-1.csv'))),
               c("internal_date", "internal_bank", "internal_merchant", "internal_dr",
-                "internal_cr", "internal_runningTot", "account_type_1", "account_type_2",
+                "internal_cr", "internal_currency","internal_runningTot", "account_type_1", "account_type_2",
                 "transaction_type", "internal_amount", "split_amount", "signed_split_amount",
                 "deletion_flag")
             )

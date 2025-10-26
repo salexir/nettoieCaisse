@@ -45,6 +45,8 @@ validate_file <- function(filePath){
 
   # Applying logic to recomposed file
 
+  recomposedFile$internal_currency <- bank_institution$internal_currency
+
   ## Debit/Credit are coerced to abs value, given that the directionality is
   ## given by context.
   recomposedFile$internal_dr <- harmonise_debit_column(recomposedFile$internal_dr,
@@ -60,7 +62,6 @@ validate_file <- function(filePath){
   recomposedFile$account_type_2 <- ifelse(account_type_2 == "cc", "CreditCard", "NonCreditCard")
 
   recomposedFile$internal <- ifelse(account_type_2 == "cc", "CreditCard", "NonCreditCard")
-
 
 
   recomposedFile$internal_amount <- ifelse(is.na(recomposedFile$internal_cr), recomposedFile$internal_dr, recomposedFile$internal_cr)
@@ -80,10 +81,10 @@ validate_file <- function(filePath){
                                    1, 0)
 
   # Reorder columns to an arbitrary format
-  sort_order <- c("internal_date", "internal_bank", "internal_merchant", "internal_dr",
-                  "internal_cr", "internal_runningTot", "account_type_1", "account_type_2",
-                  "transaction_type", "internal_amount", "split_amount", "signed_split_amount",
-                  "deletion_flag")
+  sort_order <- c("internal_date", "internal_bank", "internal_currency", "internal_merchant",
+                  "internal_dr", "internal_cr", "internal_runningTot", "account_type_1",
+                  "account_type_2", "transaction_type", "internal_amount", "split_amount",
+                  "signed_split_amount", "deletion_flag")
 
   recomposedFile <- recomposedFile[, sort_order]
 
@@ -179,6 +180,12 @@ harmonise_credit_column <- function(column_name, is_signed){
   }
 
 }
+
+# 3.0 Exchange Rates and such ==================================================
+
+
+
+
 
 # 3.0 Misc =====================================================================
 
