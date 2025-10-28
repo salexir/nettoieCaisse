@@ -68,23 +68,20 @@ validate_file <- function(filePath){
 
   recomposedFile$transaction_type <- ifelse(is.na(recomposedFile$internal_cr), "Debit", "Credit")
 
+  recomposedFile <- convert_to_cad_from_gbp(recomposedFile)
+  recomposedFile <- convert_to_gbp_from_cad(recomposedFile)
 
-  recomposedFile$split_amount <- ifelse(recomposedFile$account_type_1 == "Joint",
-                                        recomposedFile$internal_amount/2, recomposedFile$internal_amount)
-
-   recomposedFile$signed_split_amount <- ifelse(recomposedFile$transaction_type == "Debit",
-                                          -1*recomposedFile$split_amount,
-                                          recomposedFile$split_amount)
-
-
-   recomposedFile$deletion_flag <- ifelse(grepl(pattern = 'preauth', tolower(recomposedFile$internal_merchant)),
-                                   1, 0)
+  recomposedFile$deletion_flag <- ifelse(grepl(pattern = 'preauth', tolower(recomposedFile$internal_merchant)),
+                                         1, 0)
 
   # Reorder columns to an arbitrary format
   sort_order <- c("internal_date", "internal_bank", "internal_currency", "internal_merchant",
-                  "internal_dr", "internal_cr", "internal_runningTot", "account_type_1",
-                  "account_type_2", "transaction_type", "internal_amount", "split_amount",
-                  "signed_split_amount", "deletion_flag")
+                  "internal_dr", "internal_cr", "internal_runningTot",
+                  "account_type_1", "account_type_2", "transaction_type",
+                  "internal_amount",
+                  "CAD_amount", "CAD_split_amount", "CAD_signed_split_amount",
+                  "GBP_amount", "GBP_split_amount", "GBP_signed_split_amount",
+                  "deletion_flag")
 
   recomposedFile <- recomposedFile[, sort_order]
 
@@ -181,32 +178,127 @@ harmonise_credit_column <- function(column_name, is_signed){
 
 }
 
-# 3.0 Exchange Rates and such ==================================================
+# 3.0 Fin Calculations, Exchange Rates and such ================================
+
+calculate_using_specific_currency <- function(return_currency, FXQuote){
+
+  fin_name <- sprintf("%s_amount", return_currency)
+  split_name <- sprintf("%s_split_amount", return_currency)
+  signed_split_name <- sprintf("%s_signed_split_amount", return_currency)
 
 
 
+  function(recomposedFile){
+
+    fx_information <- get_fx_information(FXQuote = FXQuote)
 
 
-# 3.0 Misc =====================================================================
+    recomposedFile <- merge(x = recomposedFile,
+                            y = fx_information,
+                            by.x = "internal_date",
+                            by.y = "Date",
+                            all.x = TRUE)
 
-make_sentence_case <- function(string){
+    ## Determine conversion factor
+    fx_conversion_factor <- ifelse(recomposedFile$internal_currency[[1]] == substr(return_currency,1,3),
+                                   1, recomposedFile$Avg_imputed)
 
-  letter1 <- toupper(substr(string, 1, 1))
 
-  return(paste0(letter1, substr(string, 2, nchar(string))))
+    recomposedFile[[fin_name]] <- round(convert_amount(fin_col = recomposedFile$internal_amount,
+                                                 fx_conversion_factor = fx_conversion_factor),2)
+
+    recomposedFile[[split_name]] <-
+      round(split_amount(account_type = recomposedFile$account_type_1,
+                   fin_col = recomposedFile[[fin_name]]), 2)
+
+
+    recomposedFile[[signed_split_name]] <-
+      round(sign_amount(transaction_type = recomposedFile$transaction_type,
+                  split_col = recomposedFile[[split_name]]),2)
+
+    # Cleanup
+    recomposedFile$FXQuote <- NULL
+    recomposedFile$Date <- NULL
+    recomposedFile$Avg_imputed <- NULL
+
+
+    recomposedFile
+
+
+  }
+
+}
+
+convert_to_gbp_from_cad <- calculate_using_specific_currency(return_currency = "GBP", FXQuote = "CAD/GBP")
+convert_to_cad_from_gbp <- calculate_using_specific_currency(return_currency = "CAD", FXQuote = "GBP/CAD")
+
+convert_amount <- function(fin_col, fx_conversion_factor = 1){
+  # This applies fx
+
+  fin_col*fx_conversion_factor
 
 }
 
 # TESTING UTILS -----
 
-read_test_files <- function(){
+split_amount <- function(account_type, fin_col){
+  # This doesn't apply fx; expect an already fx'ed col
 
-  revolut_file <<- validate_file('data-raw/n2-support/Revolut-personal-cc-1.csv')
+  ifelse(account_type == "Joint",
+         fin_col/2, fin_col)
 
-  td_file <<- validate_file('data-raw/n2-support/TD-personal-cc-1.csv')
+}
 
-  old_process <<- validate_file_old('data-raw/n2-support/TD-personal-cc-1.csv')
+sign_amount <- function(transaction_type, split_col){
+  # This doesn't apply fx; expect an already fx'ed col
 
-  print('done')
+  ifelse(transaction_type == "Debit",
+         -1*split_col, split_col)
+
+}
+
+get_fx_information <- function(FXQuote = "GBP/CAD"){
+
+
+ ## First. let's get the historical stuff.
+ hist <- nettoieCaisse:::cad_gbp_viceversa_quotes
+
+
+ ## Next, let's supplement with the most recent data
+  current <- as.data.frame(quantmod::getFX(FXQuote, auto.assign = FALSE))
+
+  ## Reorganise:
+  current <- data.frame(Date = row.names(current),
+                         Avg_imputed = current[,1])
+
+  current$FXQuote <- FXQuote
+
+  if (FXQuote %in% c("GBP/CAD", "CAD/GBP")){
+
+
+    ## Take only net new for GBP/CAD
+    diff <- setdiff(current$Date, hist$Date)
+
+    current <- current[!current$Date %in% diff, ]
+
+    list(hist, current)
+
+    ## Collate
+
+    full_dat <- rbind(hist[, c("Date", "Avg_imputed", "FXQuote")], current)
+
+    ## Send only relevant
+
+    full_dat[full_dat$FXQuote == FXQuote,]
+
+  }else{
+
+    current
+
+  }
+
+}
+
+
 }
 
