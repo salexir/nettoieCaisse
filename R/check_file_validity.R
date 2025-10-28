@@ -239,7 +239,6 @@ convert_amount <- function(fin_col, fx_conversion_factor = 1){
 
 }
 
-# TESTING UTILS -----
 
 split_amount <- function(account_type, fin_col){
   # This doesn't apply fx; expect an already fx'ed col
@@ -299,6 +298,97 @@ get_fx_information <- function(FXQuote = "GBP/CAD"){
 
 }
 
+# 4.0 Misc =====================================================================
+
+make_sentence_case <- function(string){
+
+  letter1 <- toupper(substr(string, 1, 1))
+
+  return(paste0(letter1, substr(string, 2, nchar(string))))
 
 }
+
+# 5.0 TESTING UTILS ============================================================
+
+## Comment out when building.
+#'
+#' read_test_files <- function(){
+#'
+#'   revolut_file <<- validate_file('untrack/n2-support/Revolut-personal-cc-1.csv')
+#'
+#'   td_file <<- validate_file('untrack/n2-support/TD-personal-cc-1.csv')
+#'
+#'   old_process_td_file <<- validate_file_old('untrack/n2-support/TD-personal-cc-1.csv')
+#'
+#'   print('done')
+#' }
+#'
+#' #' Validate and prepare financial file
+#' #'
+#' validate_file_old <- function(file){
+#'
+#'   # Do tests
+#'   check_fileTypes(file)
+#'   check_fileNames(file)
+#'   process_type <- determine_process_type(file)
+#'
+#'   col.names <- c("Date", "Merchant", "DR", "CR", "RunningTot", "Note")
+#'   fileData <- utils::read.csv(file = file, header = FALSE, col.names = col.names)
+#'
+#'
+#'   # Column cleanups
+#'   fileData$Date <- as.Date(fileData$Date, tryFormats = c('%m/%d/%Y', '%Y-%m-%d'))
+#'   fileData$Merchant <- trimws(fileData$Merchant)
+#'   fileData$Note <- gsub("^$", NA, fileData$Note)
+#'
+#'
+#'   # Column creation
+#'   fileData$Account_Type <- unlist(strsplit(process_type, "-"))[[1]]
+#'   fileData$Account_Type2 <- unlist(strsplit(process_type, "-"))[[2]]
+#'
+#'   fileData$Transaction_Type <- ifelse(is.na(fileData$CR), "Debit", "Credit")
+#'
+#'   fileData$Amount <- ifelse(is.na(fileData$CR), fileData$DR, fileData$CR)
+#'
+#'
+#'   fileData$Split_Amount <- ifelse(fileData$Account_Type == "Joint",
+#'                                   fileData$Amount/2, fileData$Amount)
+#'
+#'   fileData$Signed_Split_Amount <- ifelse(fileData$Transaction_Type == "Debit",
+#'                                          -1*fileData$Split_Amount,
+#'                                          fileData$Split_Amount)
+#'
+#'   fileData$DeletionFlag <- ifelse(grepl(pattern = 'preauth', tolower(fileData$Merchant)),
+#'                                   1, 0)
+#'
+#'   fileData
+#' }
+#' determine_process_type <- function(file){
+#'
+#'   if(grepl('cc', file)){
+#'
+#'     if(grepl('personal', file)){
+#'
+#'       return('Personal-CreditCard')
+#'
+#'     } else{
+#'
+#'       return('Joint-CreditCard')
+#'
+#'     }
+#'
+#'   }else{
+#'
+#'     if(grepl('personal', file)){
+#'
+#'       return("Personal-NonCreditCard")
+#'
+#'     }else{
+#'
+#'       return('Joint-NonCreditCard')
+#'     }
+#'
+#'   }
+#'
+#' }
 
