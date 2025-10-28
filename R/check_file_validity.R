@@ -1,11 +1,12 @@
 #' Validate and prepare aux-bourses-citoyens financial file
 #'
-#' @param file A filepath to the csv to be processed
+#' @param filePath A filepath to the csv to be processed
 #'
 #' @returns A validated and augmented dataframe
 #' @export
 #'
 #' @examples
+#' print("helloworld")
 validate_file <- function(filePath){
 
   # Test file viability
@@ -260,7 +261,7 @@ get_fx_information <- function(FXQuote = "GBP/CAD"){
 
 
  ## First. let's get the historical stuff.
- hist <- nettoieCaisse:::cad_gbp_viceversa_quotes
+ hist <- cad_gbp_viceversa_quotes
 
 
  ## Next, let's supplement with the most recent data

@@ -7,11 +7,14 @@
 validate_file(filePath)
 }
 \arguments{
-\item{file}{A filepath to the csv to be processed}
+\item{filePath}{A filepath to the csv to be processed}
 }
 \value{
 A validated and augmented dataframe
 }
 \description{
 Validate and prepare aux-bourses-citoyens financial file
+}
+\examples{
+print("helloworld")
 }

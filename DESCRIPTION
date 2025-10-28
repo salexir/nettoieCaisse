@@ -1,6 +1,6 @@
 Package: nettoieCaisse
-Title: Cleans CSV Extracts from one Financial Institution (TD CanadaTrust)
-Version: 0.0.0.9000
+Title: Cleans CSV Extracts for multiple Financial Institutions, given schema
+Version: 2.0.0.0000
 Authors@R: 
     person("salexir", "dude", , "first.last@example.com", role = c("aut", "cre"),
            comment = c(ORCID = "YOUR-ORCID-ID"))
@@ -10,11 +10,12 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
 Suggests: 
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    tidyr,
+    withr
 Config/testthat/edition: 3
 Depends: 
     R (>= 2.10)
 LazyData: true
 Imports: 
-    quantmod,
-    tidyr
+    quantmod
