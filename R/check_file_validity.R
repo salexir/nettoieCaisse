@@ -126,8 +126,8 @@ generate_allowed_fileNames <- function(){
   bank_institution <- unlist(lapply(set_bank_model(), `[[`, 1), use.names = FALSE)
 
   # small-ish vector of allowable file names
-  allowed_fileName_prefixes <- c("personal-noncc", "shared-noncc", "personal-cc",
-                                 "shared-cc")
+  allowed_fileName_prefixes <- c("personal-noncc", "joint-noncc", "personal-cc",
+                                 "joint-cc")
 
   # possible name-combinations, flattened
   grid <- expand.grid(bank_institution = bank_institution,

@@ -10,7 +10,7 @@ test_that("importing non-csv fin file throws error",
 
 test_that("generated file names have the elements",{
           expect_match(generate_allowed_fileNames(),
-                          paste0(c("personal", "shared", "personal-cc", "shared-cc"),
+                          paste0(c("personal", "joint", "personal-cc", "joint-cc"),
                                  collapse = "|")) })
 
 test_that("file type passed have csv as file extension. This is only checking for file name, not a formal extension test. ",
@@ -28,7 +28,7 @@ test_that("well formed file names are passed silently",
 
 test_that("well formed file names are passed silently",
           {expect_silent(check_fileNames(
-            "Revolut-shared-cc-13.csv"
+            "Revolut-joint-cc-13.csv"
           ))})
 
 test_that("mal formed file names are raised",
