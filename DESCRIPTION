@@ -1,6 +1,6 @@
 Package: nettoieCaisse
 Title: Cleans CSV Extracts for multiple Financial Institutions, given schema
-Version: 2.0.0.0000
+Version: 2.0.1.0000
 Authors@R: 
     person("salexir", "dude", , "first.last@example.com", role = c("aut", "cre"),
            comment = c(ORCID = "YOUR-ORCID-ID"))
