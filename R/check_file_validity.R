@@ -75,6 +75,9 @@ validate_file <- function(filePath){
   recomposedFile$deletion_flag <- ifelse(grepl(pattern = 'preauth', tolower(recomposedFile$internal_merchant)),
                                          1, 0)
 
+  recomposedFile$f_sabbatical_year <-
+    ifelse(recomposedFile$internal_date >= "2025-09-01" & recomposedFile$internal_date <= "2026-10-01", 1, 0)
+
   # Reorder columns to an arbitrary format
   sort_order <- c("internal_date", "internal_bank", "internal_currency", "internal_merchant",
                   "internal_dr", "internal_cr", "internal_runningTot",
