@@ -221,9 +221,9 @@ calculate_using_specific_currency <- function(return_currency, FXQuote){
                   split_col = recomposedFile[[split_name]]),2)
 
     # Cleanup
-    #recomposedFile$FXQuote <- NULL
-    #recomposedFile$Date <- NULL
-    #recomposedFile$Avg_imputed <- NULL
+    recomposedFile$FXQuote <- NULL
+    recomposedFile$Date <- NULL
+    recomposedFile$Avg_imputed <- NULL
 
 
     recomposedFile
