@@ -281,11 +281,11 @@ get_fx_information <- function(FXQuote = "GBP/CAD"){
 
 
     ## Take only net new for GBP/CAD
-    diff <- setdiff(current$Date, hist$Date)
+    diff <- setdiff(current$Date, as.character(hist$Date))
 
-    current <- current[!current$Date %in% diff, ]
+    current <- current[current$Date %in% diff, ]
 
-    list(hist, current)
+    #list(hist, current)
 
     ## Collate
 
