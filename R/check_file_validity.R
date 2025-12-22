@@ -205,12 +205,11 @@ calculate_using_specific_currency <- function(return_currency, FXQuote){
                             all.x = TRUE)
 
     ## Determine conversion factor
-    fx_conversion_factor <- ifelse(recomposedFile$internal_currency[[1]] == substr(return_currency,1,3),
+    recomposedFile$fx_conversion_factor <- ifelse(recomposedFile$internal_currency == substr(return_currency,1,3),
                                    1, recomposedFile$Avg_imputed)
 
-
     recomposedFile[[fin_name]] <- round(convert_amount(fin_col = recomposedFile$internal_amount,
-                                                 fx_conversion_factor = fx_conversion_factor),2)
+                                                 fx_conversion_factor = recomposedFile$fx_conversion_factor),2)
 
     recomposedFile[[split_name]] <-
       round(split_amount(account_type = recomposedFile$account_type_1,
@@ -222,9 +221,9 @@ calculate_using_specific_currency <- function(return_currency, FXQuote){
                   split_col = recomposedFile[[split_name]]),2)
 
     # Cleanup
-    recomposedFile$FXQuote <- NULL
-    recomposedFile$Date <- NULL
-    recomposedFile$Avg_imputed <- NULL
+    #recomposedFile$FXQuote <- NULL
+    #recomposedFile$Date <- NULL
+    #recomposedFile$Avg_imputed <- NULL
 
 
     recomposedFile
