@@ -315,11 +315,11 @@ make_sentence_case <- function(string){
 
 # 5.0 TESTING UTILS ============================================================
 
-## Comment out when building.
-#'
+#' ## Comment out when building.
 #' read_test_files <- function(){
 #'
 #'   revolut_file <<- validate_file('untrack/n2-support/Revolut-personal-cc-1.csv')
+#'   revolut_joint_file <<- validate_file('untrack/n2-support/Revolut-joint-cc-1.csv')
 #'
 #'   td_file <<- validate_file('untrack/n2-support/TD-personal-cc-1.csv')
 #'
