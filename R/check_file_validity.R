@@ -205,12 +205,11 @@ calculate_using_specific_currency <- function(return_currency, FXQuote){
                             all.x = TRUE)
 
     ## Determine conversion factor
-    fx_conversion_factor <- ifelse(recomposedFile$internal_currency[[1]] == substr(return_currency,1,3),
+    recomposedFile$fx_conversion_factor <- ifelse(recomposedFile$internal_currency == substr(return_currency,1,3),
                                    1, recomposedFile$Avg_imputed)
 
-
     recomposedFile[[fin_name]] <- round(convert_amount(fin_col = recomposedFile$internal_amount,
-                                                 fx_conversion_factor = fx_conversion_factor),2)
+                                                 fx_conversion_factor = recomposedFile$fx_conversion_factor),2)
 
     recomposedFile[[split_name]] <-
       round(split_amount(account_type = recomposedFile$account_type_1,
@@ -281,11 +280,11 @@ get_fx_information <- function(FXQuote = "GBP/CAD"){
 
 
     ## Take only net new for GBP/CAD
-    diff <- setdiff(current$Date, hist$Date)
+    diff <- setdiff(current$Date, as.character(hist$Date))
 
-    current <- current[!current$Date %in% diff, ]
+    current <- current[current$Date %in% diff, ]
 
-    list(hist, current)
+    #list(hist, current)
 
     ## Collate
 
@@ -315,11 +314,11 @@ make_sentence_case <- function(string){
 
 # 5.0 TESTING UTILS ============================================================
 
-## Comment out when building.
-#'
+#' ## Comment out when building.
 #' read_test_files <- function(){
 #'
 #'   revolut_file <<- validate_file('untrack/n2-support/Revolut-personal-cc-1.csv')
+#'   revolut_joint_file <<- validate_file('untrack/n2-support/Revolut-joint-cc-1.csv')
 #'
 #'   td_file <<- validate_file('untrack/n2-support/TD-personal-cc-1.csv')
 #'
