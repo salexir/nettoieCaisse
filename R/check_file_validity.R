@@ -15,8 +15,9 @@ validate_file <- function(filePath){
 
   # Get bank name & other info coded from the filePath
   bank_name <- gather_from_filePath(filePath)[[1]]
-  account_type_1 <- gather_from_filePath(filePath)[[2]]
-  account_type_2 <- gather_from_filePath(filePath)[[3]]
+  account_currency <- gather_from_filePath(filePath)[[2]]
+  account_type_1 <- gather_from_filePath(filePath)[[3]]
+  account_type_2 <- gather_from_filePath(filePath)[[4]]
 
   # Load bank-model
   bank_institution <- get_bank_model_information(institution = bank_name)[[1]]
