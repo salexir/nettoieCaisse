@@ -15,11 +15,13 @@ validate_file <- function(filePath){
 
   # Get bank name & other info coded from the filePath
   bank_name <- gather_from_filePath(filePath)[[1]]
-  account_type_1 <- gather_from_filePath(filePath)[[2]]
-  account_type_2 <- gather_from_filePath(filePath)[[3]]
+  account_currency <- gather_from_filePath(filePath)[[2]]
+  account_type_1 <- gather_from_filePath(filePath)[[3]]
+  account_type_2 <- gather_from_filePath(filePath)[[4]]
 
   # Load bank-model
-  bank_institution <- get_bank_model_information(institution = bank_name)[[1]]
+  bank_institution <- get_bank_model_information(institution = bank_name,
+                                                 currency = account_currency)[[1]]
 
   # Read file. This is a full file read as I can't guarantee col number given multiple
   # fin institutions support. Finer selections done purposefully and subsequently.
@@ -62,15 +64,20 @@ validate_file <- function(filePath){
   recomposedFile$account_type_1 <- make_sentence_case(account_type_1)
   recomposedFile$account_type_2 <- ifelse(account_type_2 == "cc", "CreditCard", "NonCreditCard")
 
-  recomposedFile$internal <- ifelse(account_type_2 == "cc", "CreditCard", "NonCreditCard")
-
 
   recomposedFile$internal_amount <- ifelse(is.na(recomposedFile$internal_cr), recomposedFile$internal_dr, recomposedFile$internal_cr)
 
   recomposedFile$transaction_type <- ifelse(is.na(recomposedFile$internal_cr), "Debit", "Credit")
 
-  recomposedFile <- convert_to_cad_from_gbp(recomposedFile)
-  recomposedFile <- convert_to_gbp_from_cad(recomposedFile)
+
+  # Pick the right currency converters. We do so by checking which currency is in scope.
+
+  converters <- converters[grepl(tolower(bank_institution$internal_currency),
+                                       names(converters))]
+
+  recomposedFile <- converters[[1]](recomposedFile)
+  recomposedFile <- converters[[2]](recomposedFile)
+
 
   recomposedFile$deletion_flag <- ifelse(grepl(pattern = 'preauth', tolower(recomposedFile$internal_merchant)),
                                          1, 0)
@@ -78,15 +85,23 @@ validate_file <- function(filePath){
   recomposedFile$is_sabbatical_year <-
     ifelse(recomposedFile$internal_date >= "2025-09-01" & recomposedFile$internal_date <= "2026-10-01", 1, 0)
 
+
+  ###
+  columns <- colnames(recomposedFile)
+
   # Reorder columns to an arbitrary format
-  sort_order <- c("internal_date", "internal_bank", "internal_currency", "internal_merchant",
+  first_order <- c("internal_date", "internal_bank", "internal_currency", "internal_merchant",
                   "internal_dr", "internal_cr", "internal_runningTot",
                   "account_type_1", "account_type_2", "transaction_type",
                   "internal_amount",
-                  "CAD_amount", "CAD_split_amount", "CAD_signed_split_amount",
-                  "GBP_amount", "GBP_split_amount", "GBP_signed_split_amount",
-                  "is_sabbatical_year",
+                  "CAD_amount", "CAD_split_amount", "CAD_signed_split_amount")
+
+  last_order <- c("is_sabbatical_year",
                   "deletion_flag")
+
+  sort_order <- c(first_order, columns[!columns %in% c(first_order, last_order)], last_order)
+
+  ###
 
   recomposedFile <- recomposedFile[, sort_order]
 
@@ -127,7 +142,10 @@ check_fileNames <- function(file){
 generate_allowed_fileNames <- function(){
 
   # Get bank_model information for institution
-  bank_institution <- unlist(lapply(set_bank_model(), `[[`, 1), use.names = FALSE)
+  bank_institution <- unique(unlist(lapply(set_bank_model(), `[[`, 1), use.names = FALSE))
+
+  # Generate allowed currencies
+  allowed_currencies <- unique(unlist(lapply(set_bank_model(), `[[`, 6), use.names = FALSE))
 
   # small-ish vector of allowable file names
   allowed_fileName_prefixes <- c("personal-noncc", "joint-noncc", "personal-cc",
@@ -135,9 +153,13 @@ generate_allowed_fileNames <- function(){
 
   # possible name-combinations, flattened
   grid <- expand.grid(bank_institution = bank_institution,
+                      allowed_currencies = allowed_currencies,
                       allowed_fileName_prefixes = allowed_fileName_prefixes)
 
-  sprintf("%s-%s-[[:digit:]]*.csv", grid$bank_institution, grid$allowed_fileName_prefixes)
+  sprintf("%s-%s-%s-[[:digit:]]*.csv",
+          grid$bank_institution,
+          grid$allowed_currencies,
+          grid$allowed_fileName_prefixes)
 
 
 }
@@ -224,6 +246,7 @@ calculate_using_specific_currency <- function(return_currency, FXQuote){
     recomposedFile$FXQuote <- NULL
     recomposedFile$Date <- NULL
     recomposedFile$Avg_imputed <- NULL
+    recomposedFile$fx_conversion_factor <- NULL
 
 
     recomposedFile
@@ -233,8 +256,12 @@ calculate_using_specific_currency <- function(return_currency, FXQuote){
 
 }
 
-convert_to_gbp_from_cad <- calculate_using_specific_currency(return_currency = "GBP", FXQuote = "CAD/GBP")
-convert_to_cad_from_gbp <- calculate_using_specific_currency(return_currency = "CAD", FXQuote = "GBP/CAD")
+converters <- list(
+  convert_to_gbp_from_cad = calculate_using_specific_currency(return_currency = "GBP", FXQuote = "CAD/GBP"),
+  convert_to_cad_from_gbp = calculate_using_specific_currency(return_currency = "CAD", FXQuote = "GBP/CAD"),
+  convert_to_cad_from_eur = calculate_using_specific_currency(return_currency = "CAD", FXQuote = "EUR/CAD"),
+  convert_to_eur_from_cad = calculate_using_specific_currency(return_currency = "EUR", FXQuote = "CAD/EUR")
+)
 
 convert_amount <- function(fin_col, fx_conversion_factor = 1){
   # This applies fx
@@ -314,7 +341,7 @@ make_sentence_case <- function(string){
 
 # 5.0 TESTING UTILS ============================================================
 
-#' ## Comment out when building.
+## Comment out when building.
 #' read_test_files <- function(){
 #'
 #'   revolut_file <<- validate_file('untrack/n2-support/Revolut-personal-cc-1.csv')
@@ -395,4 +422,4 @@ make_sentence_case <- function(string){
 #'   }
 #'
 #' }
-
+#'

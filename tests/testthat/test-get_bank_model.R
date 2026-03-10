@@ -25,7 +25,13 @@ test_that("get_bank_model_information returns list",
           )
 
 
+test_that("returned list length of 1 if institution, currency is specified in get_bank_model_information",{
+  expect_length(get_bank_model_information(institution = "TD", currency = "CAD"), 1)
+
+})
+
+
 test_that("returned list length of 1 if institution is specified in get_bank_model_information",{
-  expect_length(get_bank_model_information(institution = "TD"), 1)
+  expect_length(get_bank_model_information(institution = "Revolut", currency = "GBP"), 1)
 
 })

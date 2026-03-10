@@ -1,6 +1,6 @@
 set_bank_model <- function(){
 
-  bank_td <-
+  bank_td_cad <-
     list(
       internal_bank_name = "TD",
       internal_date = "Date",
@@ -22,7 +22,7 @@ set_bank_model <- function(){
         )
       )
 
-  bank_revolut <-
+  bank_revolut_gbp <-
     list(
       internal_bank_name = "Revolut",
       internal_date = "Completed Date",
@@ -47,8 +47,34 @@ set_bank_model <- function(){
     )
 
 
-  list(bank_td = bank_td,
-       bank_revolut = bank_revolut)
+  bank_revolut_eur <-
+    list(
+      internal_bank_name = "Revolut",
+      internal_date = "Completed Date",
+      internal_merchant = "Description",
+      internal_dr = "Amount",
+      internal_cr = "Amount",
+      internal_currency = "EUR",
+      internal_runningTot = "Balance",
+      file_read_settings =
+        list(
+          header_present = TRUE,
+          column_position = c("Type", "Product", "Started Date", "Completed Date",
+                              "Description", "Amount", "Fee", "Currency",
+                              "State", "Balance"),
+          file_encoding = "UTF-8"
+        ),
+      column_settings =
+        list(
+          dr_col_signed = TRUE,
+          cr_col_signed = TRUE
+        )
+    )
+
+
+  list(bank_td_cad = bank_td_cad,
+       bank_revolut_gbp = bank_revolut_gbp,
+       bank_revolut_eur = bank_revolut_eur)
 
 }
 
@@ -58,15 +84,13 @@ get_bank_model_variables <- function(){
 
 }
 
-get_bank_model_information <- function(variable = NULL, institution = NULL){
+get_bank_model_information <- function(variable = NULL, institution = NULL, currency = NULL){
 
   bank_model <- set_bank_model()
 
-  if (!is.null(institution)){
+  if (!is.null(institution) | !is.null(currency)){
 
-    # Cut to size if institution is specified
-    int_bank_name <- vapply(bank_model, FUN = `[[`, "internal_bank_name", FUN.VALUE = "character")
-    bank_model <- bank_model[names(int_bank_name[int_bank_name == institution])]
+    bank_model <- bank_model[names(bank_model) %in% tolower(sprintf("bank_%s_%s", institution, currency))]
 
   }
 
@@ -77,5 +101,6 @@ get_bank_model_information <- function(variable = NULL, institution = NULL){
   }
 
   lapply(bank_model, '[', variable)
+
 
 }
