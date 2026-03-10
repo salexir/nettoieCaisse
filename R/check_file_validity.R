@@ -71,8 +71,15 @@ validate_file <- function(filePath){
 
   recomposedFile$transaction_type <- ifelse(is.na(recomposedFile$internal_cr), "Debit", "Credit")
 
-  recomposedFile <- convert_to_cad_from_gbp(recomposedFile)
-  recomposedFile <- convert_to_gbp_from_cad(recomposedFile)
+
+  # Pick the right currency converters. We do so by checking which currency is in scope.
+
+  converters <- converters[grepl(tolower(bank_institution$internal_currency),
+                                       names(converters))]
+
+  recomposedFile <- converters[[1]](recomposedFile)
+  recomposedFile <- converters[[2]](recomposedFile)
+
 
   recomposedFile$deletion_flag <- ifelse(grepl(pattern = 'preauth', tolower(recomposedFile$internal_merchant)),
                                          1, 0)
@@ -129,7 +136,10 @@ check_fileNames <- function(file){
 generate_allowed_fileNames <- function(){
 
   # Get bank_model information for institution
-  bank_institution <- unlist(lapply(set_bank_model(), `[[`, 1), use.names = FALSE)
+  bank_institution <- unique(unlist(lapply(set_bank_model(), `[[`, 1), use.names = FALSE))
+
+  # Generate allowed currencies
+  allowed_currencies <- unique(unlist(lapply(set_bank_model(), `[[`, 6), use.names = FALSE))
 
   # small-ish vector of allowable file names
   allowed_fileName_prefixes <- c("personal-noncc", "joint-noncc", "personal-cc",
@@ -137,9 +147,13 @@ generate_allowed_fileNames <- function(){
 
   # possible name-combinations, flattened
   grid <- expand.grid(bank_institution = bank_institution,
+                      allowed_currencies = allowed_currencies,
                       allowed_fileName_prefixes = allowed_fileName_prefixes)
 
-  sprintf("%s-%s-[[:digit:]]*.csv", grid$bank_institution, grid$allowed_fileName_prefixes)
+  sprintf("%s-%s-%s-[[:digit:]]*.csv",
+          grid$bank_institution,
+          grid$allowed_currencies,
+          grid$allowed_fileName_prefixes)
 
 
 }
@@ -226,6 +240,7 @@ calculate_using_specific_currency <- function(return_currency, FXQuote){
     recomposedFile$FXQuote <- NULL
     recomposedFile$Date <- NULL
     recomposedFile$Avg_imputed <- NULL
+    recomposedFile$fx_conversion_factor <- NULL
 
 
     recomposedFile
@@ -235,8 +250,12 @@ calculate_using_specific_currency <- function(return_currency, FXQuote){
 
 }
 
-convert_to_gbp_from_cad <- calculate_using_specific_currency(return_currency = "GBP", FXQuote = "CAD/GBP")
-convert_to_cad_from_gbp <- calculate_using_specific_currency(return_currency = "CAD", FXQuote = "GBP/CAD")
+converters <- list(
+  convert_to_gbp_from_cad = calculate_using_specific_currency(return_currency = "GBP", FXQuote = "CAD/GBP"),
+  convert_to_cad_from_gbp = calculate_using_specific_currency(return_currency = "CAD", FXQuote = "GBP/CAD"),
+  convert_to_cad_from_eur = calculate_using_specific_currency(return_currency = "CAD", FXQuote = "EUR/CAD"),
+  convert_to_eur_from_cad = calculate_using_specific_currency(return_currency = "EUR", FXQuote = "CAD/EUR")
+)
 
 convert_amount <- function(fin_col, fx_conversion_factor = 1){
   # This applies fx
