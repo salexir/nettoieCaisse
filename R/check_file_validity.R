@@ -20,7 +20,8 @@ validate_file <- function(filePath){
   account_type_2 <- gather_from_filePath(filePath)[[4]]
 
   # Load bank-model
-  bank_institution <- get_bank_model_information(institution = bank_name)[[1]]
+  bank_institution <- get_bank_model_information(institution = bank_name,
+                                                 currency = account_currency)[[1]]
 
   # Read file. This is a full file read as I can't guarantee col number given multiple
   # fin institutions support. Finer selections done purposefully and subsequently.
