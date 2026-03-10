@@ -23,22 +23,22 @@ test_that("file type passed have csv as file extension. This is only checking fo
 
 test_that("well formed file names are passed silently",
           {expect_silent(check_fileNames(
-            "TD-personal-noncc-1.csv"
+            "TD-CAD-personal-noncc-1.csv"
           ))})
 
 test_that("well formed file names are passed silently",
           {expect_silent(check_fileNames(
-            "Revolut-joint-cc-13.csv"
+            "Revolut-EUR-joint-cc-13.csv"
           ))})
 
 test_that("mal formed file names are raised",
           {expect_error(check_fileNames(
-            "Revolut-cc-13.csv"
+            "Revolut-GBP-cc-13.csv"
           ))})
 
 test_that("mal formed file names are raised",
           {expect_error(check_fileNames(
-            "Revolut-cc-personal-2.csv"
+            "Revolut-EUR-cc-personal-2.csv"
           ))})
 
 test_that("mal formed file names are raised",
@@ -49,6 +49,16 @@ test_that("mal formed file names are raised",
 test_that("mal formed file names are raised",
           {expect_error(check_fileNames(
             "TD-personal-cc.csv"
+          ))})
+
+test_that("mal formed file names are raised",
+          {expect_error(check_fileNames(
+            "Revolut-personal-cc.csv"
+          ))})
+
+test_that("mal formed file names are raised",
+          {expect_error(check_fileNames(
+            "Revolut-MUR-personal-cc.csv"
           ))})
 
 ## 1.2 filePath Info extraction ================================================
@@ -119,7 +129,7 @@ test_that("harmonise debit column always returns positive values, given signed c
 test_that("Colnames map after process",
           {
             expect_setequal(
-              colnames(validate_file(test_path('fixtures/mock-files/TD-personal-cc-1.csv'))),
+              colnames(validate_file(test_path('fixtures/mock-files/TD-CAD-personal-cc-1.csv'))),
               c("internal_date", "internal_bank", "internal_currency", "internal_merchant",
                 "internal_dr", "internal_cr", "internal_runningTot",
                 "account_type_1", "account_type_2", "transaction_type",
@@ -133,7 +143,7 @@ test_that("Colnames map after process",
 
 test_that("File well-formed: no unusual NAs present in core-cols",
           {
-            testfile <- validate_file(test_path('fixtures/mock-files/TD-personal-cc-1.csv'))
+            testfile <- validate_file(test_path('fixtures/mock-files/TD-CAD-personal-cc-1.csv'))
 
             analysis_of_na <- sapply(testfile, function(x) sum(is.na(x)))
 
@@ -154,10 +164,12 @@ test_that("File well-formed: no unusual NAs present in core-cols",
 
 ## 3.2 Institution: Revolut ====================================================
 
+### 3.2.1 GBP Bank Account =====================================================
+
 test_that("Colnames map after process",
           {
             expect_setequal(
-              colnames(validate_file(test_path('fixtures/mock-files/Revolut-personal-noncc-1.csv'))),
+              colnames(validate_file(test_path('fixtures/mock-files/Revolut-GBP-personal-noncc-1.csv'))),
               c("internal_date", "internal_bank", "internal_currency", "internal_merchant",
                 "internal_dr", "internal_cr", "internal_runningTot",
                 "account_type_1", "account_type_2", "transaction_type",
@@ -172,7 +184,7 @@ test_that("Colnames map after process",
 
 test_that("File well-formed: no unusual NAs present in core-cols",
           {
-            testfile <- validate_file(test_path('fixtures/mock-files/Revolut-personal-noncc-1.csv'))
+            testfile <- validate_file(test_path('fixtures/mock-files/Revolut-GBP-personal-noncc-1.csv'))
 
             analysis_of_na <- sapply(testfile, function(x) sum(is.na(x)))
 
@@ -185,6 +197,43 @@ test_that("File well-formed: no unusual NAs present in core-cols",
                            "internal_amount",
                            "CAD_amount", "CAD_split_amount", "CAD_signed_split_amount",
                            "GBP_amount", "GBP_split_amount", "GBP_signed_split_amount",
+                           "deletion_flag")
+
+            expect_equal(sum(analysis_of_na[core_cols]), 0)
+
+          })
+
+test_that("Colnames map after process",
+          {
+            expect_setequal(
+              colnames(validate_file(test_path('fixtures/mock-files/Revolut-GBP-personal-noncc-1.csv'))),
+              c("internal_date", "internal_bank", "internal_currency", "internal_merchant",
+                "internal_dr", "internal_cr", "internal_runningTot",
+                "account_type_1", "account_type_2", "transaction_type",
+                "internal_amount", "is_sabbatical_year",
+                "CAD_amount", "CAD_split_amount", "CAD_signed_split_amount",
+                "GBP_amount", "GBP_split_amount", "GBP_signed_split_amount",
+                "deletion_flag")
+            )
+          })
+
+### 3.2.1 EUR Bank Account =====================================================
+
+test_that("File well-formed: no unusual NAs present in core-cols",
+          {
+            testfile <- validate_file(test_path('fixtures/mock-files/Revolut-EUR-personal-cc-1.csv'))
+
+            analysis_of_na <- sapply(testfile, function(x) sum(is.na(x)))
+
+            core_cols <- c("internal_date",
+                           "internal_bank",
+                           "internal_merchant",
+                           "account_type_1",
+                           "account_type_2",
+                           "transaction_type",
+                           "internal_amount",
+                           "CAD_amount", "CAD_split_amount", "CAD_signed_split_amount",
+                           "EUR_amount", "EUR_split_amount", "EUR_signed_split_amount",
                            "deletion_flag")
 
             expect_equal(sum(analysis_of_na[core_cols]), 0)
