@@ -87,15 +87,23 @@ validate_file <- function(filePath){
   recomposedFile$is_sabbatical_year <-
     ifelse(recomposedFile$internal_date >= "2025-09-01" & recomposedFile$internal_date <= "2026-10-01", 1, 0)
 
+
+  ###
+  columns <- colnames(recomposedFile)
+
   # Reorder columns to an arbitrary format
-  sort_order <- c("internal_date", "internal_bank", "internal_currency", "internal_merchant",
+  first_order <- c("internal_date", "internal_bank", "internal_currency", "internal_merchant",
                   "internal_dr", "internal_cr", "internal_runningTot",
                   "account_type_1", "account_type_2", "transaction_type",
                   "internal_amount",
-                  "CAD_amount", "CAD_split_amount", "CAD_signed_split_amount",
-                  "GBP_amount", "GBP_split_amount", "GBP_signed_split_amount",
-                  "is_sabbatical_year",
+                  "CAD_amount", "CAD_split_amount", "CAD_signed_split_amount")
+
+  last_order <- c("is_sabbatical_year",
                   "deletion_flag")
+
+  sort_order <- c(first_order, columns[!columns %in% c(first_order, last_order)], last_order)
+
+  ###
 
   recomposedFile <- recomposedFile[, sort_order]
 
