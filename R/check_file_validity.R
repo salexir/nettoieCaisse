@@ -64,8 +64,6 @@ validate_file <- function(filePath){
   recomposedFile$account_type_1 <- make_sentence_case(account_type_1)
   recomposedFile$account_type_2 <- ifelse(account_type_2 == "cc", "CreditCard", "NonCreditCard")
 
-  recomposedFile$internal <- ifelse(account_type_2 == "cc", "CreditCard", "NonCreditCard")
-
 
   recomposedFile$internal_amount <- ifelse(is.na(recomposedFile$internal_cr), recomposedFile$internal_dr, recomposedFile$internal_cr)
 
@@ -343,7 +341,7 @@ make_sentence_case <- function(string){
 
 # 5.0 TESTING UTILS ============================================================
 
-#' ## Comment out when building.
+## Comment out when building.
 #' read_test_files <- function(){
 #'
 #'   revolut_file <<- validate_file('untrack/n2-support/Revolut-personal-cc-1.csv')
@@ -424,4 +422,4 @@ make_sentence_case <- function(string){
 #'   }
 #'
 #' }
-
+#'
