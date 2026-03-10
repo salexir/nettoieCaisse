@@ -1,6 +1,6 @@
 set_bank_model <- function(){
 
-  bank_td <-
+  bank_td_cad <-
     list(
       internal_bank_name = "TD",
       internal_date = "Date",
@@ -22,7 +22,7 @@ set_bank_model <- function(){
         )
       )
 
-  bank_revolut <-
+  bank_revolut_gbp <-
     list(
       internal_bank_name = "Revolut",
       internal_date = "Completed Date",
