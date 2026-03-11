@@ -78,6 +78,13 @@ validate_file <- function(filePath){
   recomposedFile <- converters[[1]](recomposedFile)
   recomposedFile <- converters[[2]](recomposedFile)
 
+  # We only export two currencies: CAD, and GBP.
+
+  tmpConvert <- calculate_using_specific_currency(return_currency = "GBP", FXQuote = "CAD/GBP")
+  recomposedFile$tmpCur <- "CAD"
+
+  recomposedFile <- tmpConvert(recomposedFile, internal_currency_col = "tmpCur", internal_amount_col = "CAD_amount")
+
 
   recomposedFile$deletion_flag <- ifelse(grepl(pattern = 'preauth', tolower(recomposedFile$internal_merchant)),
                                          1, 0)
@@ -86,20 +93,15 @@ validate_file <- function(filePath){
     ifelse(recomposedFile$internal_date >= "2025-09-01" & recomposedFile$internal_date <= "2026-10-01", 1, 0)
 
 
-  ###
-  columns <- colnames(recomposedFile)
-
   # Reorder columns to an arbitrary format
-  first_order <- c("internal_date", "internal_bank", "internal_currency", "internal_merchant",
+  sort_order <- c("internal_date", "internal_bank", "internal_currency", "internal_merchant",
                   "internal_dr", "internal_cr", "internal_runningTot",
                   "account_type_1", "account_type_2", "transaction_type",
                   "internal_amount",
-                  "CAD_amount", "CAD_split_amount", "CAD_signed_split_amount")
-
-  last_order <- c("is_sabbatical_year",
+                  "CAD_amount", "CAD_split_amount", "CAD_signed_split_amount",
+                  "GBP_amount", "GBP_split_amount", "GBP_signed_split_amount",
+                  "is_sabbatical_year",
                   "deletion_flag")
-
-  sort_order <- c(first_order, columns[!columns %in% c(first_order, last_order)], last_order)
 
   ###
 
@@ -215,7 +217,7 @@ calculate_using_specific_currency <- function(return_currency, FXQuote){
 
 
 
-  function(recomposedFile){
+  function(recomposedFile, internal_currency_col = "internal_currency", internal_amount_col = "internal_amount"){
 
     fx_information <- get_fx_information(FXQuote = FXQuote)
 
@@ -227,10 +229,10 @@ calculate_using_specific_currency <- function(return_currency, FXQuote){
                             all.x = TRUE)
 
     ## Determine conversion factor
-    recomposedFile$fx_conversion_factor <- ifelse(recomposedFile$internal_currency == substr(return_currency,1,3),
+    recomposedFile$fx_conversion_factor <- ifelse(recomposedFile[[internal_currency_col]] == substr(return_currency,1,3),
                                    1, recomposedFile$Avg_imputed)
 
-    recomposedFile[[fin_name]] <- round(convert_amount(fin_col = recomposedFile$internal_amount,
+    recomposedFile[[fin_name]] <- round(convert_amount(fin_col = recomposedFile[[internal_amount_col]],
                                                  fx_conversion_factor = recomposedFile$fx_conversion_factor),2)
 
     recomposedFile[[split_name]] <-
