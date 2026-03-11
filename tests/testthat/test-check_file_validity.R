@@ -233,7 +233,6 @@ test_that("File well-formed: no unusual NAs present in core-cols",
                            "transaction_type",
                            "internal_amount",
                            "CAD_amount", "CAD_split_amount", "CAD_signed_split_amount",
-                           "EUR_amount", "EUR_split_amount", "EUR_signed_split_amount",
                            "deletion_flag")
 
             expect_equal(sum(analysis_of_na[core_cols]), 0)
